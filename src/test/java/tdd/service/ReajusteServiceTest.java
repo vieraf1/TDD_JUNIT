@@ -13,10 +13,17 @@ import tdd.modelo.enums.DesempenhoEnum;
 
 class ReajusteServiceTest {
 
+	private ReajusteService service;
+	private Funcionario funcionario;
+	
+	private void inicializar(BigDecimal salario, DesempenhoEnum desempenho) {
+		service = new ReajusteService();
+		funcionario = new Funcionario("Lucas", LocalDate.now(), salario, desempenho);
+	}
+
 	@Test
 	public void reajusteNaoDeveSerAjustadoDevidoNaoTerDesempenhoCadastradoNoFuncionario() {
-		ReajusteService service = new ReajusteService();
-		Funcionario funcionario = new Funcionario("Lucas", LocalDate.now(), new BigDecimal(1000));
+		inicializar(new BigDecimal(1000), null);
 		
 		try {
 			service.reajustarSalario(funcionario);
@@ -26,9 +33,8 @@ class ReajusteServiceTest {
 	}
 	
 	@Test
-	public void reajusteDeveriaSerDeTresPorcentoQuandoDesempenhoForADesejar() {
-		ReajusteService service = new ReajusteService();
-		Funcionario funcionario = new Funcionario("Lucas", LocalDate.now(), new BigDecimal(10000), DesempenhoEnum.A_DESEJAR);
+	public void reajusteNaoDeveSerAjustadoDevidoValorDeSalarioExcederLimite() {
+		inicializar(new BigDecimal(10000), DesempenhoEnum.A_DESEJAR);
 		
 		try {
 			service.reajustarSalario(funcionario);
@@ -39,9 +45,16 @@ class ReajusteServiceTest {
 	}
 	
 	@Test
+	public void reajusteDeveriaSerDeTresPorcentoQuandoDesempenhoForADesejar() {
+		inicializar(new BigDecimal(1000), DesempenhoEnum.A_DESEJAR);
+		
+		service.reajustarSalario(funcionario);
+		assertEquals(new BigDecimal(1030).doubleValue(), funcionario.getSalario().doubleValue());
+	}
+	
+	@Test
 	public void reajusteDeveriaSerDeDezPorcentoQuandoDesempenhoForBom() {
-		ReajusteService service = new ReajusteService();
-		Funcionario funcionario = new Funcionario("Lucas", LocalDate.now(), new BigDecimal(1000), DesempenhoEnum.BOM);
+		inicializar(new BigDecimal(1000), DesempenhoEnum.BOM);
 		
 		service.reajustarSalario(funcionario);
 		assertEquals(new BigDecimal(1100).doubleValue(), funcionario.getSalario().doubleValue());
@@ -49,8 +62,7 @@ class ReajusteServiceTest {
 	
 	@Test
 	public void reajusteDeveriaSerDeVintePorcentoQuandoDesempenhoForOtimo() {
-		ReajusteService service = new ReajusteService();
-		Funcionario funcionario = new Funcionario("Lucas", LocalDate.now(), new BigDecimal(1000), DesempenhoEnum.OTIMO);
+		inicializar(new BigDecimal(1000), DesempenhoEnum.OTIMO);
 		
 		service.reajustarSalario(funcionario);
 		assertEquals(new BigDecimal(1200).doubleValue(), funcionario.getSalario().doubleValue());
