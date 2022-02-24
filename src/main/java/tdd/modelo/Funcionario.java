@@ -44,8 +44,4 @@ public class Funcionario {
 	public void setSalario(BigDecimal salario) {
 		this.salario = salario;
 	}
-	
-	public boolean realizarAjusteSalarial() {
-		return desempenho != null && salario != null;
-	}
 }
